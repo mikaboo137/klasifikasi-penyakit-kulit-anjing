@@ -76,7 +76,7 @@ export default function Home() {
       const formData = new FormData()
       formData.append("file", image)
 
-      const response = await axios.post("http://localhost:8000/predict", formData, {
+      const response = await axios.post("https://mikaboo-klasifikasi-penyakit.hf.space/predict", formData, {
         headers: { "Content-Type": "multipart/form-data" },
         timeout: 30000, // 30 second timeout
       })
