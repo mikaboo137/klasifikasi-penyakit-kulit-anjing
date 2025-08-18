@@ -28,20 +28,7 @@ export function Navigation() {
             <span className="text-xl font-bold text-gray-800">DogSkin AI</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`text-sm font-medium transition-colors hover:text-blue-600 ${
-                  pathname === item.href ? "text-blue-600" : "text-gray-700"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
+         
 
           {/* Mobile menu button */}
           <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>

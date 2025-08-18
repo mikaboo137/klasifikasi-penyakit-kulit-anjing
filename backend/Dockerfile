@@ -1,16 +1,17 @@
-FROM python:3.10-slim
+FROM python:3.10
 
-# Install dependencies
+# Install sistem dependency untuk OpenCV
+RUN apt-get update && apt-get install -y libgl1 libglib2.0-0
+
+# Set working dir
 WORKDIR /code
+
+# Copy dan install requirements
 COPY requirements.txt .
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the app
-COPY app app
+# Copy semua file ke container
+COPY . .
 
-# Expose port
-EXPOSE 7860
-
-# Run the FastAPI app
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7860"]
+# Jalankan app
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]

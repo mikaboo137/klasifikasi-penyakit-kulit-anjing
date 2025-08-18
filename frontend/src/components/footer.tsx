@@ -17,59 +17,13 @@ export function Footer() {
             </p>
           </div>
 
-          <div>
-            <h3 className="font-semibold mb-4">Navigasi</h3>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li>
-                <a href="/" className="hover:text-white transition-colors">
-                  Beranda
-                </a>
-              </li>
-              <li>
-                <a href="/about" className="hover:text-white transition-colors">
-                  Tentang
-                </a>
-              </li>
-              <li>
-                <a href="/diseases" className="hover:text-white transition-colors">
-                  Info Penyakit
-                </a>
-              </li>
-              <li>
-                <a href="/faq" className="hover:text-white transition-colors">
-                  FAQ
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-semibold mb-4">Bantuan</h3>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li>
-                <a href="/how-it-works" className="hover:text-white transition-colors">
-                  Cara Kerja
-                </a>
-              </li>
-              <li>
-                <a href="/faq" className="hover:text-white transition-colors">
-                  FAQ
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
+          <div className="md:col-start-4">
             <h3 className="font-semibold mb-4">Informasi</h3>
             <div className="space-y-2 text-sm text-gray-400">
               <p>Sistem AI untuk deteksi penyakit kulit anjing menggunakan teknologi YOLOv8</p>
               <p>Dikembangkan untuk membantu deteksi dini masalah kesehatan kulit</p>
             </div>
           </div>
-        </div>
-
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-          <p>&copy; 2024 DogSkin AI. Semua hak dilindungi.</p>
         </div>
       </div>
     </footer>
