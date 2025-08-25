@@ -1,9 +1,10 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef } from "react"
+import { useState } from "react"
 import axios from "axios"
-import { Upload, Camera, AlertCircle, CheckCircle, Info, CameraIcon, X } from "lucide-react"
+import { Upload, Camera, AlertCircle, CheckCircle, Info, CameraIcon } from "lucide-react"
+import CameraCapture from "@/components/camera-capture"
 
 interface PredictionResult {
   prediction: string
@@ -44,82 +45,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showCamera, setShowCamera] = useState(false)
-  const [stream, setStream] = useState<MediaStream | null>(null)
-  const [videoReady, setVideoReady] = useState(false)
 
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  // 🔹 Start Camera
-  const startCamera = async () => {
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true })
-      setStream(mediaStream)
-      setShowCamera(true)
-
-      if (videoRef.current) {
-        const video = videoRef.current
-        video.srcObject = mediaStream
-
-        video.onloadedmetadata = () => {
-          video.play().then(() => {
-            console.log("[v1] Video started")
-            setVideoReady(true)
-          }).catch((err) => {
-            console.error("Video play error:", err)
-            setError("Tidak dapat memulai kamera. Coba lagi.")
-          })
-        }
-      }
-    } catch (err) {
-      console.error("Camera error:", err)
-      setError("Tidak dapat mengakses kamera. Pastikan izin kamera sudah diberikan.")
-    }
-  }
-
-  // 🔹 Stop Camera
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop())
-      setStream(null)
-    }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null
-    }
-    setShowCamera(false)
-    setVideoReady(false)
-  }
-
-  // 🔹 Capture Photo
-  const capturePhoto = () => {
-    if (videoRef.current && canvasRef.current) {
-      const canvas = canvasRef.current
-      const video = videoRef.current
-      const context = canvas.getContext("2d")
-
-      canvas.width = video.videoWidth || 640
-      canvas.height = video.videoHeight || 480
-
-      if (context) {
-        context.drawImage(video, 0, 0, canvas.width, canvas.height)
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const file = new File([blob], "camera-capture.jpg", { type: "image/jpeg" })
-            setImage(file)
-            setPreview(URL.createObjectURL(file))
-            setError(null)
-            setResult(null)
-            stopCamera()
-            console.log("[v1] Photo captured successfully")
-          }
-        }, "image/jpeg", 0.8)
-      }
-    } else {
-      setError("Kamera belum siap. Silakan coba lagi.")
-    }
-  }
-
-  // 🔹 Handle Upload
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -127,10 +53,12 @@ export default function Home() {
         setError("Please select a valid image file")
         return
       }
+
       if (file.size > 5 * 1024 * 1024) {
         setError("File size must be less than 5MB")
         return
       }
+
       setImage(file)
       setPreview(URL.createObjectURL(file))
       setError(null)
@@ -138,12 +66,28 @@ export default function Home() {
     }
   }
 
-  // 🔹 Submit ke API
+  const handlePhotoCapture = (file: File) => {
+    setImage(file)
+    setPreview(URL.createObjectURL(file))
+    setError(null)
+    setResult(null)
+    setShowCamera(false)
+  }
+
+  const handleCameraError = (errorMessage: string) => {
+    setError(errorMessage)
+  }
+
+  const handleCameraClose = () => {
+    setShowCamera(false)
+  }
+
   const handleSubmit = async () => {
     if (!image) {
       setError("Pilih gambar terlebih dahulu!")
       return
     }
+
     setLoading(true)
     setError(null)
 
@@ -176,7 +120,7 @@ export default function Home() {
     setPreview(null)
     setResult(null)
     setError(null)
-    stopCamera()
+    setShowCamera(false)
   }
 
   const getDiseaseInfo = (prediction: string) => {
@@ -207,7 +151,6 @@ export default function Home() {
 
         <div className="max-w-4xl mx-auto">
           <div className="grid md:grid-cols-2 gap-8">
-            {/* Upload / Camera Section */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
                 <Upload className="w-6 h-6 mr-2 text-blue-600" />
@@ -216,47 +159,11 @@ export default function Home() {
 
               <div className="space-y-4">
                 {showCamera ? (
-                  <div className="space-y-4">
-                    <div className="relative">
-                      <video
-                        ref={videoRef}
-                        autoPlay
-                        playsInline
-                        muted
-                        onCanPlay={() => setVideoReady(true)}
-                        className="w-full h-64 object-cover rounded-xl"
-                      />
-                      <button
-                        onClick={stopCamera}
-                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 transition-colors"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                      {!videoReady && (
-                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-xl">
-                          <div className="text-white text-center">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-                            <p className="text-sm">Memuat kamera...</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={capturePhoto}
-                        className="flex-1 py-3 px-6 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-colors flex items-center justify-center"
-                      >
-                        <CameraIcon className="w-5 h-5 mr-2" />
-                        Ambil Foto
-                      </button>
-                      <button
-                        onClick={stopCamera}
-                        className="px-6 py-3 bg-gray-500 text-white font-semibold rounded-xl hover:bg-gray-600 transition-colors"
-                      >
-                        Batal
-                      </button>
-                    </div>
-                  </div>
+                  <CameraCapture
+                    onPhotoCapture={handlePhotoCapture}
+                    onError={handleCameraError}
+                    onClose={handleCameraClose}
+                  />
                 ) : (
                   <>
                     <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors">
@@ -277,7 +184,7 @@ export default function Home() {
                     <div className="text-center">
                       <p className="text-sm text-gray-500 mb-2">atau</p>
                       <button
-                        onClick={startCamera}
+                        onClick={() => setShowCamera(true)}
                         className="w-full py-3 px-6 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-colors flex items-center justify-center"
                       >
                         <CameraIcon className="w-5 h-5 mr-2" />
@@ -329,7 +236,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Result Section */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
                 <Info className="w-6 h-6 mr-2 text-green-600" />
@@ -385,7 +291,8 @@ export default function Home() {
 
                   <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                     <p className="text-sm text-yellow-800">
-                      <strong>Catatan:</strong> Hasil ini hanya untuk referensi. Konsultasikan dengan dokter hewan untuk diagnosis yang akurat.
+                      <strong>Catatan:</strong> Hasil ini hanya untuk referensi. Konsultasikan dengan dokter hewan untuk
+                      diagnosis yang akurat.
                     </p>
                   </div>
                 </div>
@@ -400,7 +307,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Disease Info Section */}
           <div className="mt-12">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
               Jenis Penyakit yang Dapat Dideteksi
@@ -425,7 +331,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <canvas ref={canvasRef} className="hidden" />
     </div>
   )
 }
