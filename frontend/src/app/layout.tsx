@@ -8,7 +8,7 @@ import { Footer } from "@/components/footer"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Dog Skin Disease Classifier",
+  title: "Klasifikasi Penyakit Kulit Anjing",
   description: "Klasifikasi penyakit kulit anjing menggunakan AI YOLOv8",
 }
 
