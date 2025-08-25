@@ -12,6 +12,12 @@ interface PredictionResult {
 }
 
 const diseaseInfo = {
+    healthy: {
+    name: "Sehat",
+    description: "Kulit dalam kondisi normal dan sehat",
+    color: "text-green-600",
+    accuracy: 95.8,
+  },
   demodicosis: {
     name: "Demodicosis",
     description: "Penyakit kulit yang disebabkan oleh tungau Demodex",
@@ -21,19 +27,13 @@ const diseaseInfo = {
   dermatitis: {
     name: "Dermatitis",
     description: "Peradangan kulit yang dapat disebabkan berbagai faktor",
-    color: "text-orange-600",
+    color: "text-red-600",
     accuracy: 89.3,
-  },
-  healthy: {
-    name: "Sehat",
-    description: "Kulit dalam kondisi normal dan sehat",
-    color: "text-green-600",
-    accuracy: 95.8,
   },
   ringworm: {
     name: "Ringworm",
     description: "Infeksi jamur pada kulit yang membentuk pola melingkar",
-    color: "text-purple-600",
+    color: "text-red-600",
     accuracy: 87.2,
   },
 }
