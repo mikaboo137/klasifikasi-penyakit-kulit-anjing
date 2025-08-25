@@ -100,8 +100,12 @@ export default function Home() {
         timeout: 30000,
       })
 
-      const adjustedConfidence =
-        response.data.confidence >= 1.0 ? Math.min(0.995, response.data.confidence) : response.data.confidence
+      let adjustedConfidence = response.data.confidence
+
+      // Cap any confidence that would display as 100% when rounded to 1 decimal place
+      if (adjustedConfidence >= 0.995) {
+        adjustedConfidence = 0.994 // This will display as 99.4% maximum
+      }
 
       setResult({
         ...response.data,
